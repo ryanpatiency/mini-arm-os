@@ -4,7 +4,7 @@ AS := $(CROSS_COMPILE)as
 CORTEX_M3 := -mcpu=cortex-m3
 CORTEX_M4 := -mcpu=cortex-m4
 CFLAGS = -fno-common -ffreestanding -O0 -std=gnu99 \
-	 	 -gdwarf-2 -g3 -Wall -Werror \
+	 	 -gdwarf-2 -ggdb -g3 -Wall -Werror \
 	 	 -mthumb 
 
 #devices vendor
@@ -61,6 +61,16 @@ st-flash: $($(STM32F429_DEVICE)_TARGET)
 
 st-erase:
 	st-flash erase
+	
+openocd:
+	sudo openocd -f interface/stlink-v2.cfg  \
+		   -f target/stm32f4x.cfg      \
+		   -l /tmp/openocd.log 	\
+			-c "init"                   \
+		   -c "reset init"             \
+		   -c "arm semihosting enable" \
+		   -c "reset run"
+		
 
 gdb_ST-UTIL: $($(STM32F429_DEVICE)_TARGET_elf)
 	@echo ""
@@ -94,4 +104,3 @@ astyle:
 
 clean:
 	rm -rf $(RELEASE_DIR)
-
